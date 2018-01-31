@@ -1,0 +1,102 @@
+---
+- fail: msg="site_cert is undefined"
+  when: site_cert == ''
+
+- fail: msg="site_key is undefined"
+  when: site_key == ''
+
+- fail: msg="shib_cert is undefined"
+  when: shib_cert == ''
+
+- fail: msg="shib_key is undefined"
+  when: shib_key == ''
+
+- name: Clean artifact path
+  file:
+    state: absent
+    path: /home/ec2-user/dockerbuild
+
+- name: configuration directories
+  file: state=directory dest=/home/ec2-user/dockerbuild mode=0755
+
+- name: configuration directories
+  file: state=directory dest=/home/ec2-user/dockerbuild/shibboleth-sp mode=0755
+
+- name: configuration directories
+  file: state=directory dest=/home/ec2-user/dockerbuild/appfiles mode=0755
+
+- name: site certificate directoreis
+  file: state=directory dest=/home/ec2-user/dockerbuild/{{ site_cert_path }} mode=0755
+
+- name: site key directories
+  file: state=directory dest=/home/ec2-user/dockerbuild/{{ site_key_path }} mode=0700 group=root owner=root
+
+- name: site SSL certificate
+  template: src=site.crt.j2 dest="/home/ec2-user/dockerbuild/{{ site_cert_path }}/ca.crt" mode=0644
+
+- name: site SSL key
+  template: src=site.key.j2 dest="/home/ec2-user/dockerbuild/{{ site_key_path }}/ca.key" mode=0600 group=root owner=root
+
+- name: cp .docker
+  command: cp -r /home/ec2-user/.docker /home/ec2-user/dockerbuild/.docker
+
+- name: configuration directories
+  file: state=directory dest=/home/ec2-user/dockerbuild/conf.d mode=0755
+
+- name: apache configuration
+  template: src=httpd-vhosts.conf.j2 dest="/home/ec2-user/dockerbuild/conf.d/ssl.conf" mode=0644
+
+- name: apache configuration
+  copy: src=shib.conf dest=/home/ec2-user/dockerbuild/conf.d/shib.conf mode=0644 
+
+- name: copy the Dockerfile to the apache configuration directory
+  template: src=Dockerfile.j2 dest=/home/ec2-user/dockerbuild/Dockerfile mode=0644
+
+- name: a shibboleth configuration file
+  template: src=shibboleth2.xml.j2 dest=/home/ec2-user/dockerbuild/shibboleth-sp/shibboleth2.xml mode=0644
+
+- name: yet another shib configuratoin file
+  copy: src=attribute-map.xml dest=/home/ec2-user/dockerbuild/shibboleth-sp/attribute-map.xml
+
+- name: copy the itrust certificate
+  copy: src=itrust.pem dest=/home/ec2-user/dockerbuild/shibboleth-sp/itrust.pem
+
+- name: Shibboleth SSL certificate
+  template: src=shib.crt.j2 dest=/home/ec2-user/dockerbuild/shibboleth-sp/sp-cert.pem mode=0644
+
+- name: Shibboleth SSL key
+  template: src=shib.key.j2 dest=/home/ec2-user/dockerbuild/shibboleth-sp/sp-key.pem mode=0600 group=root owner=root
+
+- name: copy the splash page
+  template: src=index.html.j2 dest=/home/ec2-user/dockerbuild/appfiles/index.html
+
+- name: copy style.css
+  copy: src=style.css dest=/home/ec2-user/dockerbuild/appfiles/style.css
+
+- name: docker rmi ariapn/uiuc-shib
+  docker_image:
+    state: absent
+    tag: ariapn/uiuc-shib
+  ignore_errors: yes
+
+- name: docker rmi unicon/shibboleth-sp
+  docker_image:
+    state: absent
+    tag: unicon/shibboleth-sp
+  ignore_errors: yes
+
+- name: prune
+  command: docker system prune -f
+
+- name: build docker image
+  command: docker build /home/ec2-user/dockerbuild/ --tag="ariapn/uiuc-shib"
+
+- name: docker rmi unicon/shibboleth-sp
+  docker_image:
+    state: absent
+    tag: unicon/shibboleth-sp
+  ignore_errors: yes
+
+- name: build docker image
+  command: docker run -p 80:80 -p 443:443 --restart=on-failure -d ariapn/uiuc-shib
+

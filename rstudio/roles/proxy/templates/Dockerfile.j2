@@ -1,0 +1,8 @@
+FROM unicon/shibboleth-sp
+
+ADD /shibboleth-sp/ /etc/shibboleth/
+ADD /appfiles/ /var/www/html/
+ADD /appfiles/ /var/www/html/login/
+ADD /root/site/ /root/site/
+ADD /conf.d/ /etc/httpd/conf.d/
+ADD /.docker/ /root/.docker/

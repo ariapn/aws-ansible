@@ -1,0 +1,3 @@
+[Service]
+ExecStart=
+ExecStart=/usr/bin/dockerd -H 0.0.0.0:2375 -H=unix:///var/run/docker.sock --tlsverify --tlscacert /home/ec2-user/.docker/ca.pem --tlscert /home/ec2-user/.docker/cert.pem --tlskey /home/ec2-user/.docker/key.pem

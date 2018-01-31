@@ -1,0 +1,26 @@
+---
+- hosts:
+  - proxy
+  roles:
+  - common
+  tags:
+  - common
+
+- hosts:
+  - proxy
+  vars_files:
+  - vars.yml
+  roles:
+  - docker
+  tags:
+  - docker
+
+- hosts:
+  - proxy
+  vars_files:
+  - vars.yml
+  roles:
+  - proxy
+  tags:
+  - proxy
+

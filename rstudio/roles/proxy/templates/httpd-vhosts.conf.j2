@@ -1,0 +1,50 @@
+# https://github.com/jupyter/jupyterhub/issues/219
+<VirtualHost *:80>
+    ServerName {{ fqdn }}
+    Redirect permanent / https://{{ fqdn }}/
+</VirtualHost>
+
+Listen 443
+<VirtualHost *:443>
+    ServerName {{ fqdn }}
+    SSLEngine On
+    SSLCertificateFile {{ site_cert_path }}/ca.crt
+    SSLCertificateKeyFile {{ site_key_path }}/ca.key
+    #SSLCertificateChainFile {{ site_key_path }}/server-chain.crt
+    #SSLCACertificateFile {{ site_key_path }}/ca-bundle.crt
+ 
+    #per Technology Service Security: 
+    SSLOptions StrictRequire
+    SSLProtocol All -SSLv2 -SSLv3
+    SSLHonorCipherOrder on
+    SSLCipherSuite 'AES128+EECDH:AES128+EDH:ECDH+AES+HIGH:EDH+AES+HIGH:3DES+RSA+SHA+HIGH:AES+RSA+HIGH'
+
+    SSLProxyEngine On
+
+    <Proxy *>
+        Order deny,allow
+        Allow from {{ rstudio_server }}
+        Allow from localhost
+    </Proxy>
+
+    RewriteEngine on
+    RewriteCond %{HTTP:Upgrade} =websocket
+    RewriteRule /(.*)     ws://{{ rstudio_server }}:8787/$1  [P,L]
+    RewriteCond %{HTTP:Upgrade} !=websocket
+    RewriteRule /(.*)     http://{{ rstudio_server }}:8787/$1 [P,L]
+
+    ProxyPass / http://{{ rstudio_server }}:8787/
+    ProxyPassReverse / http://{{ rstudio_server }}:8787/
+    ProxyRequests Off
+    ProxyPreserveHost on
+
+#    Header edit Referer https://{{ private_ip }}:8888/hub/admin {{ private_ip }}/hub
+#    RequestHeader edit Referer https://{{ private_ip }}:8888/hub/admin {{ private_ip }}/hub
+
+#    Header edit Referer https://{{ private_ip }}:8888/hub/home {{ private_ip }}/hub
+#    RequestHeader edit Referer https://{{ private_ip }}:8888/hub/home {{ private_ip }}/hub
+
+    Header set Illinois-CollegeofBusiness-User %{REMOTE_USER}s
+    RequestHeader set Illinois-CollegeofBusiness-User %{REMOTE_USER}s
+
+</VirtualHost>
