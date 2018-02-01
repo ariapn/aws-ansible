@@ -23,18 +23,18 @@ Listen 443
 
     <Proxy *>
         Order deny,allow
-        Allow from {{ rstudio_server }}
+        Allow from {{ jupyterhub_host }}
         Allow from localhost
     </Proxy>
 
     RewriteEngine on
     RewriteCond %{HTTP:Upgrade} =websocket
-    RewriteRule /(.*)     ws://{{ rstudio_server }}:8787/$1  [P,L]
+    RewriteRule /(.*)     ws://{{ jupyterhub_host }}:8787/$1  [P,L]
     RewriteCond %{HTTP:Upgrade} !=websocket
-    RewriteRule /(.*)     http://{{ rstudio_server }}:8787/$1 [P,L]
+    RewriteRule /(.*)     http://{{ jupyterhub_host }}:8787/$1 [P,L]
 
-    ProxyPass / http://{{ rstudio_server }}:8787/
-    ProxyPassReverse / http://{{ rstudio_server }}:8787/
+    ProxyPass / http://{{ jupyterhub_host }}:8787/
+    ProxyPassReverse / http://{{ jupyterhub_host }}:8787/
     ProxyRequests Off
     ProxyPreserveHost on
 
