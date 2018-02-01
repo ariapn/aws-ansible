@@ -8,5 +8,5 @@ if [ ! -e ${ROOT}//inventory ]; then
   exit 1
 fi
 
-#exec ansible-playbook ${ROOT}/deploy.yml -i ${ROOT}/inventory --ask-vault-pass $@
-exec ansible-playbook ${ROOT}/deploy.yml -i ${ROOT}/inventory
+exec ansible-playbook ${ROOT}/deploy.yml -i ${ROOT}/inventory --ask-vault-pass $@
+#exec ansible-playbook ${ROOT}/deploy.yml -i ${ROOT}/inventory

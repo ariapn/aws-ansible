@@ -1,20 +1,7 @@
 ---
 - name: upgrade all packages
-  yum:
+  apt:
+    force_apt_get: yes
     name: '*'
     state: latest
 
-- name: install epel-release
-  command: yum-config-manager --enable epel
-
-- name: install python
-  yum: name=python state=latest
-
-- name: install pip
-  yum: name=python-pip state=latest
-
-- name: upgrade pip
-  pip: name=pip state=latest
-
-- name: install git
-  yum: name=git state=latest
