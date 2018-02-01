@@ -9,27 +9,29 @@
   when: docker_tls_key == ''
 
 - name: install docker
-  yum: name=docker state=present
+  apt:
+    force_apt_get: yes
+    name: docker.io
 
 - name: add docker group
   group: name=docker state=present
   register: user_task
 
-- name: add ec2-user to docker group
-  user: name=ec2-user groups=docker append=yes
+- name: add ubuntu to docker group
+  user: name=ubuntu groups=docker append=yes
 
 - name: create docker TLS directory
-  file: path=/home/ec2-user/.docker state=directory group=ec2-user owner=ec2-user mode=0700
+  file: path="{{ site_home_path }}/.docker" state=directory group=ubuntu owner=ubuntu mode=0700
 
 - name: install docker TLS certificates
-  template: src={{ item.from }} dest={{ item.to }} group=ec2-user owner=ec2-user mode=0600
+  template: src={{ item.from }} dest={{ item.to }} group=ubuntu owner=ubuntu mode=0600
   with_items:
     - from: ca.pem.j2
-      to: /home/ec2-user/.docker/ca.pem
+      to: "{{ site_home_path }}/.docker/ca.pem"
     - from: cert.pem.j2
-      to: /home/ec2-user/.docker/cert.pem
+      to: "{{ site_home_path }}/.docker/cert.pem"
     - from: key.pem.j2
-      to: /home/ec2-user/.docker/key.pem
+      to: "{{ site_home_path }}/.docker/key.pem"
 
 - name: docker-py
   pip: name=docker state=present
@@ -41,7 +43,7 @@
   shell: docker rm -v $(docker ps -a -q) || true
 
 - name: run docker cleanup cronjob
-  cron: name="docker cleanup" minute=15 user="ec2-user" job="/usr/bin/docker rmi $(/usr/bin/docker images -q --filter 'dangling=true')"
+  cron: name="docker cleanup" minute=15 user="ubuntu" job="/usr/bin/docker rmi $(/usr/bin/docker images -q --filter 'dangling=true')"
 
 - name: set DOCKER_HOST
   lineinfile: dest=/etc/environment state=present line="DOCKER_HOST=tcp://{{ private_ip }}:2375"
@@ -50,7 +52,7 @@
   lineinfile: dest=/etc/environment state=present line="DOCKER_TLS_VERIFY=1"
 
 - name: set DOCKER_CERT_PATH
-  lineinfile: dest=/etc/environment state=present line="DOCKER_CERT_PATH=/home/ec2-user/.docker"
+  lineinfile: dest=/etc/environment state=present line="DOCKER_CERT_PATH={{ site_home_path }}/.docker"
 
 - name: create a systemd directory
   file: path=/lib/systemd/system/docker.service.d state=directory
