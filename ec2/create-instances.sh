@@ -2,4 +2,4 @@
 
 ROOT=$(dirname $0)/.
 
-exec ansible-playbook ${ROOT}/rstudio-aws.yml -i ${ROOT}/inventory --ask-vault-pass $@
+exec ansible-playbook -i ${ROOT}/inventory --ask-vault-pass $@

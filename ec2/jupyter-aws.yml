@@ -1,0 +1,64 @@
+---
+# Create deploy, rstudio, and proxy servers
+- name: Create AWS resources
+  hosts: localhost
+  connection: local
+  gather_facts: False
+  vars_files:
+    - vars.yml
+  tasks:
+  - name: Create an EC2 instance for deploy
+    ec2:
+      aws_access_key: "{{ ba590_aws_access_key }}"
+      aws_secret_key: "{{ ba590_aws_secret_key }}"
+      key_name: "{{ ba590_key_name }}"
+      aws_region: "{{ aws_region }}"
+      group: default,ssh-aria
+      instance_type: t2.micro
+      image: "{{ ami_id }}"
+      wait: yes
+      private_ip: "{{ deploy_private_ip }}"
+      zone: "{{ zone }}"
+      instance_tags:
+         Name: deploy-server
+      exact_count: 1
+      count_tag: deploy-server
+    register: ec2
+  - name: Create an EC2 instance for proxy
+    ec2:
+      aws_access_key: "{{ ba590_aws_access_key }}"
+      aws_secret_key: "{{ ba590_aws_secret_key }}"
+      key_name: "{{ ba590_key_name }}"
+      aws_region: "{{ aws_region }}"
+      group: default
+      instance_type: t2.micro
+      image: "{{ ami_id }}"
+      wait: yes
+      private_ip: "{{ proxy_private_ip }}"
+      zone: "{{ zone }}"
+      instance_tags:
+         Name: proxy-server
+      exact_count: 1
+      count_tag: proxy-server
+    register: ec2
+
+  - name: Create an EC2 instance for jupyterhub
+    ec2:
+      aws_access_key: "{{ ba590_aws_access_key }}"
+      aws_secret_key: "{{ ba590_aws_secret_key }}"
+      key_name: "{{ ba590_key_name }}"
+      aws_region: "{{ aws_region }}"
+      group: default
+      instance_type: m4.2xlarge
+      image: "{{ ami_id }}"
+      wait: yes
+      private_ip: "{{ jupyterhub_private_ip }}"
+      zone: "{{ zone }}"
+      instance_tags:
+         Name: jupyterhub-server
+      exact_count: 1
+      count_tag: jupyterhub-server
+    register: ec2
+    tags:
+      - create_jupyterhub
+
