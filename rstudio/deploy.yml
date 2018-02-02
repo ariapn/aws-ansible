@@ -2,6 +2,7 @@
 - hosts:
   - localhost
   - proxy
+  - jupyterhub_hosts
   roles:
   - common
   tags:

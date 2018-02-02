@@ -46,7 +46,7 @@
   cron: name="docker cleanup" minute=15 user="ubuntu" job="/usr/bin/docker rmi $(/usr/bin/docker images -q --filter 'dangling=true')"
 
 - name: set DOCKER_HOST
-  lineinfile: dest=/etc/environment state=present line="DOCKER_HOST=tcp://{{ private_ip }}:2375"
+  lineinfile: dest=/etc/environment state=present line="DOCKER_HOST=tcp://{{ ansible_host }}:2375"
 
 - name: set DOCKER_TLS_VERIFY
   lineinfile: dest=/etc/environment state=present line="DOCKER_TLS_VERIFY=1"

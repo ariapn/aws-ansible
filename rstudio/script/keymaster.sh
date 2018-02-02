@@ -17,7 +17,7 @@ KEYMASTER="sudo docker run --rm -v $(pwd)/certificates/:/certificates/ cloudpipe
 
 for a in "${hosts[@]}"
 do
-    line=$(cat inventory | grep -v "#" | grep "$a")
+    line=$(cat hosts | grep -v "#" | grep "$a")
     if [[ -z "${line// }" ]]
     then
         continue
