@@ -44,7 +44,7 @@ Listen 443
 #    Header edit Referer https://{{ ansible_host }}:8888/hub/home {{ ansible_host }}/hub
 #    RequestHeader edit Referer https://{{ ansible_host }}:8888/hub/home {{ ansible_host }}/hub
 
-    Header set Illinois-CollegeofBusiness-User %{REMOTE_USER}s
-    RequestHeader set Illinois-CollegeofBusiness-User %{REMOTE_USER}s
+    Header set REMOTE_USER %{REMOTE_USER}s
+    RequestHeader set REMOTE_USER %{REMOTE_USER}s
 
 </VirtualHost>
