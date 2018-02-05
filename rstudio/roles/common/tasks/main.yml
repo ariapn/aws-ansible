@@ -1,0 +1,36 @@
+---
+
+- name: set timezone to America/Chicago
+  timezone:
+    name: America/Chicago
+
+- name: Only run "update_cache=yes" if the last one is more than 3600 seconds ago
+  apt:
+    force_apt_get: yes
+    update_cache: yes
+    cache_valid_time: 3600
+    upgrade: safe
+
+- name: install pip
+  apt:
+    force_apt_get: yes
+    pkg: python3-pip
+
+- name: install ntp
+  apt:
+    force_apt_get: yes
+    pkg: ntp
+
+- name: ntp | starting
+  service:
+    name: ntp
+    state: started
+    enabled: yes
+
+- name: check if a reboot is required
+  shell: "[ -f /var/run/reboot-required ]"
+  failed_when: False
+  register: reboot_required
+  changed_when: reboot_required.rc == 0
+  notify: reboot
+

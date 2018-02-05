@@ -1,0 +1,70 @@
+---
+- fail: msg="docker_ca_cert is undefined"
+  when: docker_ca_cert == ''
+
+- fail: msg="docker_tls_cert is undefined"
+  when: docker_tls_cert == ''
+
+- fail: msg="docker_tls_key is undefined"
+  when: docker_tls_key == ''
+
+- name: install docker
+  apt:
+    force_apt_get: yes
+    name: docker.io
+
+- name: add docker group
+  group: name=docker state=present
+  register: user_task
+
+- name: add ubuntu to docker group
+  user: name=ubuntu groups=docker append=yes
+
+- name: create docker TLS directory
+  file: path="{{ site_home_path }}/.docker" state=directory group=ubuntu owner=ubuntu mode=0700
+
+- name: install docker TLS certificates
+  template: src={{ item.from }} dest={{ item.to }} group=ubuntu owner=ubuntu mode=0600
+  with_items:
+    - from: ca.pem.j2
+      to: "{{ site_home_path }}/.docker/ca.pem"
+    - from: cert.pem.j2
+      to: "{{ site_home_path }}/.docker/cert.pem"
+    - from: key.pem.j2
+      to: "{{ site_home_path }}/.docker/key.pem"
+
+- name: docker-py
+  pip: name=docker state=present
+
+- name: stop running docker containers
+  shell: docker stop $(docker ps -a -q) || true
+
+- name: remove docker containers
+  shell: docker rm -v $(docker ps -a -q) || true
+
+- name: run docker cleanup cronjob
+  cron: name="docker cleanup" minute=15 user="ubuntu" job="/usr/bin/docker rmi $(/usr/bin/docker images -q --filter 'dangling=true')"
+
+- name: set DOCKER_HOST
+  lineinfile: dest=/etc/environment state=present line="DOCKER_HOST=tcp://{{ ansible_host }}:2375"
+
+- name: set DOCKER_TLS_VERIFY
+  lineinfile: dest=/etc/environment state=present line="DOCKER_TLS_VERIFY=1"
+
+- name: set DOCKER_CERT_PATH
+  lineinfile: dest=/etc/environment state=present line="DOCKER_CERT_PATH={{ site_home_path }}/.docker"
+
+- name: create a systemd directory
+  file: path=/lib/systemd/system/docker.service.d state=directory
+
+- name: copy systemd configuration file
+  template: src=docker-host.conf.j2 dest=/lib/systemd/system/docker.service.d/docker-host.conf
+
+- name: stop docker daemon
+  service: name=docker state=stopped
+
+- name: Reload systemd
+  command: systemctl daemon-reload
+
+- name: start docker daemon
+  service: name=docker state=started

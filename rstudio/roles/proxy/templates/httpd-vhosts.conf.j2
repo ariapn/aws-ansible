@@ -1,0 +1,50 @@
+# https://github.com/jupyter/jupyterhub/issues/219
+<VirtualHost *:80>
+    ServerName {{ fqdn }}
+    Redirect permanent / https://{{ fqdn }}/
+</VirtualHost>
+
+Listen 443
+<VirtualHost *:443>
+    ServerName {{ fqdn }}
+    SSLEngine On
+    SSLCertificateFile {{ site_cert_path }}/ca.crt
+    SSLCertificateKeyFile {{ site_key_path }}/ca.key
+    #SSLCertificateChainFile {{ site_key_path }}/server-chain.crt
+    #SSLCACertificateFile {{ site_key_path }}/ca-bundle.crt
+ 
+    #per Technology Service Security: 
+    SSLOptions StrictRequire
+    SSLProtocol All -SSLv2 -SSLv3
+    SSLHonorCipherOrder on
+    SSLCipherSuite 'AES128+EECDH:AES128+EDH:ECDH+AES+HIGH:EDH+AES+HIGH:3DES+RSA+SHA+HIGH:AES+RSA+HIGH'
+
+    SSLProxyEngine On
+
+    <Proxy *>
+        Order deny,allow
+        Allow from {{ jupyterhub_host }}
+        Allow from localhost
+    </Proxy>
+
+    RewriteEngine on
+    RewriteCond %{HTTP:Upgrade} =websocket
+    RewriteRule /(.*)     ws://{{ jupyterhub_host }}:8787/$1  [P,L]
+    RewriteCond %{HTTP:Upgrade} !=websocket
+    RewriteRule /(.*)     http://{{ jupyterhub_host }}:8787/$1 [P,L]
+
+    ProxyPass / http://{{ jupyterhub_host }}:8787/
+    ProxyPassReverse / http://{{ jupyterhub_host }}:8787/
+    ProxyRequests Off
+    ProxyPreserveHost on
+
+#    Header edit Referer https://{{ ansible_host }}:8888/hub/admin {{ ansible_host }}/hub
+#    RequestHeader edit Referer https://{{ ansible_host }}:8888/hub/admin {{ ansible_host }}/hub
+
+#    Header edit Referer https://{{ ansible_host }}:8888/hub/home {{ ansible_host }}/hub
+#    RequestHeader edit Referer https://{{ ansible_host }}:8888/hub/home {{ ansible_host }}/hub
+
+    Header set REMOTE_USER %{REMOTE_USER}s
+    RequestHeader set REMOTE_USER %{REMOTE_USER}s
+
+</VirtualHost>

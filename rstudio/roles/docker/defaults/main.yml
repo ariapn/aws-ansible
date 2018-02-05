@@ -1,0 +1,17 @@
+---
+# This is the certificate authority for the Docker certs. This should never
+# actually be saved in plain text, it should be overwritten in an encrypted
+# vault file.
+docker_ca_cert: ''
+
+# This should contain TLS certificates for each of the machines that use
+# Docker. Each key should correspond to the name of the host in the inventory
+# file. These should never actually be saved in plain text, they should be
+# overwritten in an encrypted vault file.
+docker_tls_cert: ''
+
+# This should contain TLS keys for each of the machines that use Docker, and
+# there should be one for each certificate in `tls_certs`. These should never
+# actually be saved in plain text, they should be overwritten in an encrypted
+# vault file.
+docker_tls_key: ''

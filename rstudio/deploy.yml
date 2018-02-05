@@ -1,0 +1,31 @@
+---
+- hosts:
+  - localhost
+  - proxy
+  - jupyterhub_hosts
+  roles:
+  - common
+  tags:
+  - common
+
+- hosts:
+  - proxy
+  roles:
+  - docker
+  tags:
+  - docker
+
+- hosts:
+  - proxy
+  roles:
+  - proxy
+  tags:
+  - proxy
+
+- hosts:
+  - rstudio_host
+  roles:
+  - rstudio
+  tags:
+  - rstudio_host
+
