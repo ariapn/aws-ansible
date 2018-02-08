@@ -23,18 +23,18 @@ Listen 443
 
     <Proxy *>
         Order deny,allow
-        Allow from {{ jupyterhub_host }}
+        Allow from {{ rstudio_server }}
         Allow from localhost
     </Proxy>
 
     RewriteEngine on
     RewriteCond %{HTTP:Upgrade} =websocket
-    RewriteRule /(.*)     ws://{{ jupyterhub_host }}:8787/$1  [P,L]
+    RewriteRule /(.*)     ws://{{ rstudio_server }}:8787/$1  [P,L]
     RewriteCond %{HTTP:Upgrade} !=websocket
-    RewriteRule /(.*)     http://{{ jupyterhub_host }}:8787/$1 [P,L]
+    RewriteRule /(.*)     http://{{ rstudio_server }}:8787/$1 [P,L]
 
-    ProxyPass / http://{{ jupyterhub_host }}:8787/
-    ProxyPassReverse / http://{{ jupyterhub_host }}:8787/
+    ProxyPass / http://{{ rstudio_server }}:8787/
+    ProxyPassReverse / http://{{ rstudio_server }}:8787/
     ProxyRequests Off
     ProxyPreserveHost on
 
@@ -44,7 +44,7 @@ Listen 443
 #    Header edit Referer https://{{ ansible_host }}:8888/hub/home {{ ansible_host }}/hub
 #    RequestHeader edit Referer https://{{ ansible_host }}:8888/hub/home {{ ansible_host }}/hub
 
-    Header set REMOTE_USER %{REMOTE_USER}s
-    RequestHeader set REMOTE_USER %{REMOTE_USER}s
+    Header set {{ secret_header }} %{REMOTE_USER}s
+    RequestHeader set {{ secret_header }} %{REMOTE_USER}s
 
 </VirtualHost>

@@ -22,6 +22,21 @@
 - name: configuration directories
   file: state=directory dest={{ site_home_path }}/dockerbuild/shibboleth-sp mode=0755
 
+- name: configuration directories
+  file: state=directory dest={{ site_home_path }}/dockerbuild/appfiles mode=0755
+
+- name: copy the splash page
+  template: src=index.html.j2 dest={{ site_home_path }}/dockerbuild/appfiles/index.html
+
+- name: copy style.css
+  copy: src=style.css dest={{ site_home_path }}/dockerbuild/appfiles/style.css
+
+- name: copy the logo image
+  copy: src=EY.gif dest={{ site_home_path }}/dockerbuild/appfiles/EY.gif
+
+- name: copy the favicon
+  copy: src=EYlogo.ico dest={{ site_home_path }}/dockerbuild/appfiles/EYlogo.ico
+
 - name: site certificate directoreis
   file: state=directory dest={{ site_home_path }}/dockerbuild/{{ site_cert_path }} mode=0755
 

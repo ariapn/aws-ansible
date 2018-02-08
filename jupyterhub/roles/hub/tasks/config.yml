@@ -3,6 +3,9 @@
 - name: install jupyterhub config file
   template: src=jupyterhub_config.py.j2 dest={{jupyterhub_config_dir}}/jupyterhub_config.py owner=root group=root mode=0644
 
+- name: install remote_user_auth.py config file
+  template: src=remote_user_auth.py.j2 dest={{jupyterhub_config_dir}}/remote_user_auth.py owner=root group=root mode=0644
+
 - name: install jupyterhub cookie secret
   template: src=cookie_secret.j2 dest={{jupyterhub_srv_dir}}/cookie_secret owner=root group=root mode=0600
 

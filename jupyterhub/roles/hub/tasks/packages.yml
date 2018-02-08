@@ -1,4 +1,4 @@
----
+
 
 - name: install npm
   apt: name=npm state=present update_cache=yes
@@ -6,7 +6,7 @@
 - name: install nodejs-legacy
   apt: name=nodejs-legacy state=present update_cache=yes
 
-- name: install npm package configurable-http-proxy
+- name: install configurable-http-proxy
   npm: name=configurable-http-proxy global=yes state=present
 
 - name: install jupyterhub via pip
@@ -15,5 +15,3 @@
 - name: install notebook via pip
   pip: name=notebook state=present
 
-- name: install jhub_remote_user_authenticator via pip
-  pip: name=jhub_remote_user_authenticator state=present

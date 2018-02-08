@@ -2,7 +2,7 @@
 - hosts:
   - localhost
   - proxy
-  - jupyterhub_hosts
+  - rstudio_servers
   roles:
   - common
   tags:
@@ -23,9 +23,9 @@
   - proxy
 
 - hosts:
-  - rstudio_host
+  - rstudio_servers
   roles:
   - rstudio
   tags:
-  - rstudio_host
+  - rstudio
 

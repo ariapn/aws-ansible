@@ -3,4 +3,11 @@
 - include_tasks: packages.yml
 - include_tasks: directories.yml
 - include_tasks: config.yml
+- name: copy jupyterhub systemd configuration file
+  template: src=jupyterhub.service.j2 dest=/lib/systemd/system/jupyterhub.service
+- name: restart service jupyterhub, in all cases, also issue daemon-reload to pick up config changes
+  systemd:
+    state: restarted
+    daemon_reload: yes
+    name: jupyterhub
 

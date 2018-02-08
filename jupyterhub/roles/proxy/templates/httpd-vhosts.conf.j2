@@ -27,24 +27,36 @@ Listen 443
         Allow from localhost
     </Proxy>
 
+    #ProxyPreserveHost on
+    #ProxyPass /hub http://{{ jupyterhub_host }}:8000/hub
+    #ProxyPassReverse /hub http://{{ jupyterhub_host }}:8000/hub
+
+    #ProxyPass /user http://{{ jupyterhub_host }}:8000/user
+    #ProxyPassReverse /user http://{{ jupyterhub_host }}:8000/user
+
+    #Header edit Referer https://{{ ansible_host }}:8888/hub/admin {{ ansible_host }}/hub
+    #RequestHeader edit Referer https://{{ ansible_host }}:8888/hub/admin {{ ansible_host }}/hub
+
+    #Header edit Referer https://{{ ansible_host }}:8888/hub/home {{ ansible_host }}/hub
+    #RequestHeader edit Referer https://{{ ansible_host }}:8888/hub/home {{ ansible_host }}/hub
+
+    #<Location ~ "/(user/[^/]*)/(api/kernels/[^/]+/channels|terminals/websocket)/?">
+        #ProxyPass ws://{{ jupyterhub_host }}:8000
+        #ProxyPassReverse ws://{{ jupyterhub_host }}:8000
+    #</Location>
+
     RewriteEngine on
     RewriteCond %{HTTP:Upgrade} =websocket
-    RewriteRule /(.*)     ws://{{ jupyterhub_host }}:8787/$1  [P,L]
+    RewriteRule /(.*)     ws://{{ jupyterhub_host }}:8000/$1  [P,L]
     RewriteCond %{HTTP:Upgrade} !=websocket
-    RewriteRule /(.*)     http://{{ jupyterhub_host }}:8787/$1 [P,L]
+    RewriteRule /(.*)     http://{{ jupyterhub_host }}:8000/$1 [P,L]
 
-    ProxyPass / http://{{ jupyterhub_host }}:8787/
-    ProxyPassReverse / http://{{ jupyterhub_host }}:8787/
+    ProxyPass / http://{{ jupyterhub_host }}:8000/
+    ProxyPassReverse / http://{{ jupyterhub_host }}:8000/
     ProxyRequests Off
     ProxyPreserveHost on
 
-#    Header edit Referer https://{{ ansible_host }}:8888/hub/admin {{ ansible_host }}/hub
-#    RequestHeader edit Referer https://{{ ansible_host }}:8888/hub/admin {{ ansible_host }}/hub
-
-#    Header edit Referer https://{{ ansible_host }}:8888/hub/home {{ ansible_host }}/hub
-#    RequestHeader edit Referer https://{{ ansible_host }}:8888/hub/home {{ ansible_host }}/hub
-
-    Header set REMOTE_USER %{REMOTE_USER}s
-    RequestHeader set REMOTE_USER %{REMOTE_USER}s
+    Header set {{ secret_header }} %{REMOTE_USER}s
+    RequestHeader set {{ secret_header }} %{REMOTE_USER}s
 
 </VirtualHost>

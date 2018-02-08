@@ -1,6 +1,35 @@
 ---
+- name: change hostname
+  hostname:
+    name: "badm-py.business.illinois.edu"
 
-- include_tasks: packages.yml
-- include_tasks: directories.yml
-- include_tasks: config.yml
+- name: add myself to /etc/hosts
+  lineinfile:
+    dest: /etc/hosts
+    regexp: '^127\.0\.0\.1[ \t]+localhost'
+    line: '127.0.0.1 localhost badm-py'
+    state: present
+
+#- name: install R
+#  apt: name=r-base state=present update_cache=yes
+
+#- name: install rstudio
+#  apt: 
+#    deb: https://download2.rstudio.org/rstudio-server-1.1.423-amd64.deb
+
+#- name: deactivate rstudio license
+#  command: rstudio-server license-manager deactivate 
+
+#- name: activate rstudio license
+#  command: rstudio-server license-manager activate {{ rstudio_pro_license }}
+
+#- name: /etc/rstudio/rserver.conf
+#  lineinfile:
+#    path: /etc/rstudio/rserver.conf
+#    line: 'auth-proxy=1'
+#    line: 'auth-proxy-sign-in-url=https://{{ fqdn }}/'
+#    line: 'admin-enabled=1'
+#    line: 'admin-group=rstudioadmins'
+#    line: 'admin-superuser-group=rstudioadmins'
+#    line: 'admin-monitor-log-use-server-time-zone=1'
 

@@ -1,5 +1,8 @@
-# {{ ansible_managed }}
-# Configuration file for jupyterhub.
+# -*- coding: utf-8 -*-
+#
+import sys
+
+sys.path.insert(0, '{{ jupyterhub_config_dir }}')
 
 c = get_config()
 c.JupyterHub.ip = u'{{ ansible_default_ipv4.address }}'
@@ -7,17 +10,12 @@ c.JupyterHub.port = 8000
 c.JupyterHub.cookie_secret_file = u'{{ jupyterhub_srv_dir }}/cookie_secret'
 c.JupyterHub.db_url = u'{{ jupyterhub_srv_dir }}/jupyterhub.sqlite'
 c.JupyterHub.confirm_no_ssl = True
+c.ConfigurableHTTPProxy.auth_token = u'{{ configproxy_auth_token }}'
+
 {% if not cleanup_on_shutdown %}
 c.JupyterHub.cleanup_proxy = False
 c.JupyterHub.cleanup_servers = False
 {% endif %}
-
-# Always start using the labhub script to make JupyterLab work,
-# but don't redirect users to it unless jupyterlab_default is set.
-#c.Spawner.cmd = u'/usr/local/bin/start-jupyter-labhub.sh'
-#{% if jupyterlab_default %}
-#c.Spawner.default_url = '/lab'
-#{% endif %}
 
 # A list of jupyterhub groups to create.
 c.JupyterHub.load_groups = {
@@ -30,9 +28,12 @@ c.JupyterHub.load_groups = {
 {% endfor -%}
 }
 
-c.JupyterHub.authenticator_class = u'jhub_remote_user_authenticator.remote_user_auth.RemoteUserAuthenticator'
+c.JupyterHub.authenticator_class = u'remote_user_auth.RemoteUserAuthenticator'
+c.Authenticator.admin_users = admin = set()
+c.Authenticator.whitelist = whitelist = set()
+c.JupyterHub.admin_access = True
+
 c.LocalAuthenticator.create_system_users = True
-c.Authenticator.add_user_cmd =  ['adduser', '-q', '--home', '{{home_dir}}/USERNAME', '--gecos', '""', '--disabled-password']
 
 {% if jupyterhub_admin_users|length %}
 c.Authenticator.admin_users = {
