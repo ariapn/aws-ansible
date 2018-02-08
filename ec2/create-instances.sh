@@ -2,4 +2,4 @@
 
 ROOT=$(dirname $0)/.
 
-exec ansible-playbook -i ${ROOT}/inventory --ask-vault-pass $@
+exec ansible-playbook -i ${ROOT}/hosts --ask-vault-pass $@
