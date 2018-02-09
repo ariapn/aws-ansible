@@ -1,35 +1,58 @@
 ---
 - name: change hostname
   hostname:
-    name: "badm-py.business.illinois.edu"
+    name: "{{ fqdn }}"
 
 - name: add myself to /etc/hosts
   lineinfile:
-    dest: /etc/hosts
-    regexp: '^127\.0\.0\.1[ \t]+localhost'
-    line: '127.0.0.1 localhost badm-py'
-    state: present
+    path: /etc/hosts
+    line: '{{ ansible_host }} {{ fqdn }}'
 
-#- name: install R
-#  apt: name=r-base state=present update_cache=yes
+- name: install R
+  apt: name=r-base state=present update_cache=yes
 
-#- name: install rstudio
-#  apt: 
-#    deb: https://download2.rstudio.org/rstudio-server-1.1.423-amd64.deb
+- name: install rstudio
+  apt: 
+    deb: https://download2.rstudio.org/rstudio-server-pro-1.1.423-amd64.deb
 
-#- name: deactivate rstudio license
-#  command: rstudio-server license-manager deactivate 
+- name: /etc/rstudio/rserver.conf
+  lineinfile: 
+    path: /etc/rstudio/rserver.conf
+    line: 'auth-proxy=1'
 
-#- name: activate rstudio license
-#  command: rstudio-server license-manager activate {{ rstudio_pro_license }}
+- name: /etc/rstudio/rserver.conf
+  lineinfile: 
+    path: /etc/rstudio/rserver.conf
+    line: 'auth-proxy-sign-in-url=https://{{ fqdn }}/'
 
-#- name: /etc/rstudio/rserver.conf
-#  lineinfile:
-#    path: /etc/rstudio/rserver.conf
-#    line: 'auth-proxy=1'
-#    line: 'auth-proxy-sign-in-url=https://{{ fqdn }}/'
-#    line: 'admin-enabled=1'
-#    line: 'admin-group=rstudioadmins'
-#    line: 'admin-superuser-group=rstudioadmins'
-#    line: 'admin-monitor-log-use-server-time-zone=1'
+- name: /etc/rstudio/rserver.conf
+  lineinfile: 
+    path: /etc/rstudio/rserver.conf
+    line: 'admin-enabled=1'
 
+- name: /etc/rstudio/rserver.conf
+  lineinfile: 
+    path: /etc/rstudio/rserver.conf
+    line: 'admin-group=rstudioadmins'
+
+- name: /etc/rstudio/rserver.conf
+  lineinfile: 
+    path: /etc/rstudio/rserver.conf
+    line: 'admin-superuser-group=rstudioadmins'
+
+- name: /etc/rstudio/rserver.conf
+  lineinfile: 
+    path: /etc/rstudio/rserver.conf
+    line: 'admin-monitor-log-use-server-time-zone=1'
+
+- name: deactivate rstudio license
+  command: rstudio-server license-manager deactivate 
+
+- name: activate rstudio license
+  command: rstudio-server license-manager activate {{ rstudio_server_license }}
+
+- name: restart rstudio
+  systemd:
+    name: rstudio-server
+    state: restarted
+ 

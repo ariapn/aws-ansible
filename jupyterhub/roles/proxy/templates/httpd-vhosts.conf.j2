@@ -27,24 +27,6 @@ Listen 443
         Allow from localhost
     </Proxy>
 
-    #ProxyPreserveHost on
-    #ProxyPass /hub http://{{ jupyterhub_host }}:8000/hub
-    #ProxyPassReverse /hub http://{{ jupyterhub_host }}:8000/hub
-
-    #ProxyPass /user http://{{ jupyterhub_host }}:8000/user
-    #ProxyPassReverse /user http://{{ jupyterhub_host }}:8000/user
-
-    #Header edit Referer https://{{ ansible_host }}:8888/hub/admin {{ ansible_host }}/hub
-    #RequestHeader edit Referer https://{{ ansible_host }}:8888/hub/admin {{ ansible_host }}/hub
-
-    #Header edit Referer https://{{ ansible_host }}:8888/hub/home {{ ansible_host }}/hub
-    #RequestHeader edit Referer https://{{ ansible_host }}:8888/hub/home {{ ansible_host }}/hub
-
-    #<Location ~ "/(user/[^/]*)/(api/kernels/[^/]+/channels|terminals/websocket)/?">
-        #ProxyPass ws://{{ jupyterhub_host }}:8000
-        #ProxyPassReverse ws://{{ jupyterhub_host }}:8000
-    #</Location>
-
     RewriteEngine on
     RewriteCond %{HTTP:Upgrade} =websocket
     RewriteRule /(.*)     ws://{{ jupyterhub_host }}:8000/$1  [P,L]

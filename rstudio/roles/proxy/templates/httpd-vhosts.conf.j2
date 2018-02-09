@@ -38,12 +38,6 @@ Listen 443
     ProxyRequests Off
     ProxyPreserveHost on
 
-#    Header edit Referer https://{{ ansible_host }}:8888/hub/admin {{ ansible_host }}/hub
-#    RequestHeader edit Referer https://{{ ansible_host }}:8888/hub/admin {{ ansible_host }}/hub
-
-#    Header edit Referer https://{{ ansible_host }}:8888/hub/home {{ ansible_host }}/hub
-#    RequestHeader edit Referer https://{{ ansible_host }}:8888/hub/home {{ ansible_host }}/hub
-
     Header set {{ secret_header }} %{REMOTE_USER}s
     RequestHeader set {{ secret_header }} %{REMOTE_USER}s
 
